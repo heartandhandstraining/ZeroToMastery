@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt = require('bcrypt-nodejs');
 
 const app = express();
 
@@ -21,6 +22,13 @@ const database = {
       password: 'bananas',
       entries: 0,
       joined: new Date(),
+    },
+  ],
+  login: [
+    {
+      id: 987,
+      hash: '',
+      email: 'john@gmail.com',
     },
   ],
 };
