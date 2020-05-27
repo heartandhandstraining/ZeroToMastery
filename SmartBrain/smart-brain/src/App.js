@@ -49,11 +49,27 @@ class App extends Component {
     this.setState({ input: event.target.value });
   };
 
-  onButtonSubmit = () => {
+  onPictureSubmit = () => {
     this.setState({ imageUrl: this.state.input }, () => {
       app.models
         .predict(Clarifai.FACE_DETECT_MODEL, this.state.imageUrl)
         .then((response) => {
+          if (response) {
+            fetch('http://localhost:3000/image', {
+              method: 'put',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: this.state.user.id,
+              }),
+            })
+              .then((response) => response.json())
+              .then((count) =>
+                this.setState(
+                  Object.assign(this.state.user, { entries: count })
+                )
+              );
+          }
+
           const facebox = this.calculateFaceLocation(response);
           this.displayFaceBox(facebox);
         })
@@ -65,7 +81,7 @@ class App extends Component {
 
   onRouteChange = (route) => {
     if (route === 'signout') {
-      this.setState({ isSignedIn: false });
+      this.setState({ isSignedIn: false, imageUrl: '', box: {} });
     } else if (route === 'home') {
       this.setState({ isSignedIn: true });
     }
@@ -124,7 +140,7 @@ class App extends Component {
             />
             <ImageLinkForm
               onInputChange={this.onInputChange}
-              onButtonSubmit={this.onButtonSubmit}
+              onButtonSubmit={this.onPictureSubmit}
             />
             <FaceRecognition imageUrl={imageUrl} box={box} />
           </div>
