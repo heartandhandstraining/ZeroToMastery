@@ -17,40 +17,8 @@ const db = knex({
   },
 });
 
-db.select('*')
-  .from('users')
-  .then((data) => console.log(data));
-
 app.use(express.json());
 app.use(cors());
-
-const database = {
-  users: [
-    {
-      id: 123,
-      name: 'John',
-      email: 'john@gmail.com',
-      password: 'cookies',
-      entries: 0,
-      joined: new Date(),
-    },
-    {
-      id: 124,
-      name: 'Sally',
-      email: 'sally@gmail.com',
-      password: 'bananas',
-      entries: 0,
-      joined: new Date(),
-    },
-  ],
-  login: [
-    {
-      id: 987,
-      hash: '',
-      email: 'john@gmail.com',
-    },
-  ],
-};
 
 app.get('/', (req, res) => {
   res.send(database.users);
@@ -82,6 +50,8 @@ app.post('/register', (req, res) => {
   const { email, name, password } = req.body;
   const hash = bcrypt.hashSync(password);
 
+  console.log(req.body);
+
   db.transaction((trx) => {
     trx
       .insert({
@@ -98,7 +68,9 @@ app.post('/register', (req, res) => {
             name: name,
             joined: new Date(),
           })
-          .then((user) => res.json(user));
+          .then((user) => {
+            res.json(user[0]);
+          });
       })
       .then(trx.commit)
       .catch(trx.rollback);
